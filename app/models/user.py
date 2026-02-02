@@ -1,29 +1,18 @@
-from typing import Optional
-from app.core.database import db
-from sqlalchemy.orm import Mapped, mapped_column,relationship;
-from typing import List;
+from typing import Optional, List
 import sqlalchemy as sa
-from app.models.base import BaseModel
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.core.database import BaseModel
 
 
-class user(BaseModel):
-    __tablename__="user"
-    
-    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True,autoincrement=True)
-    email:Mapped[str] = mapped_column(sa.String, unique=True);
-    name:Mapped[str] = mapped_column(sa.String);
-    password:Mapped[str]=mapped_column(sa.String);
+class User(BaseModel):
+    __tablename__ = "users"
 
-    tasks:Mapped[List["task"]] = relationship(back_populates="task");
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
+    email: Mapped[str] = mapped_column(sa.String(255), unique=True, nullable=False)
+    name: Mapped[Optional[str]] = mapped_column(sa.String(255), nullable=True)
+    password: Mapped[str] = mapped_column(sa.String(255), nullable=False)
 
-    def __init__(
-            self,
-            id=None,
-            email=None,
-            name=None,
-            password=None
-    ):
-        self.email=email;
-        self.id = id;
-        self.name=name;
-        self.password=password;
+    tasks: Mapped[List["Task"]] = relationship("Task", back_populates="user", cascade="all, delete-orphan")
+
+    def __repr__(self) -> str:
+        return f"<User id={self.id} email={self.email}>"

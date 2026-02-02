@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.models.base import BaseModel # Import your models' Base here
+from app.core.database import BaseModel # Import your models' Base here
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -21,6 +21,11 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = BaseModel.metadata
+
+# Import your models so that they are registered on the Base's MetaData
+# (Alembic autogenerate only sees tables if the models are imported)
+import app.models.user  # noqa: F401
+import app.models.task  # noqa: F401
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

@@ -1,35 +1,22 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import Field
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, mapped_column, relationship;
-from app.core.database import db
-from app.models.base import BaseModel
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.core.database import BaseModel
 
-# Orm Mapped Class
-class task(BaseModel):
-    __tablename__="task";
-    
-    id:Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True);
 
-    name:Mapped[str] = mapped_column(sa.String);
-    description:Mapped[Optional[str]] = mapped_column(sa.String, nullable=True);
-    date:Mapped[datetime] = mapped_column(sa.DateTime);
+class Task(BaseModel):
+    __tablename__ = "tasks"
 
-    user_id:Mapped[int] = mapped_column(sa.ForeignKey("user.id"))
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(sa.String(255), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(sa.String(1024), nullable=True)
+    date: Mapped[datetime] = mapped_column(sa.DateTime, default=datetime.utcnow, nullable=False)
 
-    user_rel: Mapped["user"] = relationship(back_populates="user")
+    user_id: Mapped[int] = mapped_column(sa.ForeignKey("users.id"), nullable=False)
+    user: Mapped["User"] = relationship("User", back_populates="tasks")
 
-    def __init__(
-            self,
-            id=None,
-            name=None,
-            description=None,
-            date=None,
-            user_id=None
-    ):
-        self.id=id;
-        self.name=name;
-        self.description=description;
-        self.date=date; 
-        self.user_id=user_id
+    completed: Mapped[bool] = mapped_column(sa.Boolean, default=False, nullable=False)
+
+    def __repr__(self) -> str:
+        return f"<Task id={self.id} name={self.name} user_id={self.user_id}>"
