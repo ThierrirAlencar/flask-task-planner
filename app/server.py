@@ -1,33 +1,39 @@
 from flask import Flask
 from app.core.database import db
 
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///teste.db'
 
-def load_database():
-    
+def load_database(app):
     # carregas os modelos
     from app.models.task import task
     from app.models.user import user
 
-    # Carregar o banco de dados
-    from app.core.database import db
+    # Inicializa a extensão do banco para a app passada
+    db.init_app(app)
+    return db
 
-    db.init_app(app=app);
-    return db;
 
-def load_api():
+def load_api(app):
     from app.routes.user import api as user_blueprint
-
-    #registra uma rota
+    # registra uma rota
     app.register_blueprint(user_blueprint)
-    pass;
 
-def create_app():
 
+def create_app(test_config: dict | None = None):
+    """Factory to create and configure the Flask application.
+
+    Pass a `test_config` dict to override configuration (useful for tests).
+    """
+    app = Flask(__name__)
+
+    # valor padrão, pode ser sobrescrito por `test_config`
+    app.config.setdefault("SQLALCHEMY_DATABASE_URI", "sqlite:///teste.db")
+
+    if test_config:
+        app.config.update(test_config)
 
     with app.app_context():
-        load_database();
-        db.create_all() # cria todas as tabelas carregadas
-        load_api();
-    return app;
+        load_database(app)
+        db.create_all()  # cria todas as tabelas carregadas
+        load_api(app)
+
+    return app

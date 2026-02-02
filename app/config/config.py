@@ -1,3 +1,2 @@
-from app.server import app
-
-app.config["SQL_ALCHEMY_DATABASE_URI"] = 'sqlite:///teste.db'
+def api_config(app):
+    app.config["SQL_ALCHEMY_DATABASE_URI"] = 'sqlite:///teste.db'
