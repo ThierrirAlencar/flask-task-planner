@@ -29,7 +29,7 @@ def get_one_task(id:int):
         "user_id":task.user_id
     };
 
-@api.get("/all/<int:user_id")
+@api.get("/all/<int:user_id>")
 def get_many_by_user(user_id:int):
     tasks =  db.session.scalars(select(Task).where(Task.user_id==user_id));
     return jsonify(tasks)

@@ -4,8 +4,8 @@ from app.core.database import db
 
 def load_database(app):
     # carregas os modelos
-    from app.models.task import task
-    from app.models.user import user
+    from app.models.task import Task
+    from app.models.user import User
 
     # Inicializa a extensão do banco para a app passada
     db.init_app(app)
@@ -14,8 +14,10 @@ def load_database(app):
 
 def load_api(app):
     from app.routes.user import api as user_blueprint
+    from app.routes.tasks import api as task_blueprint
     # registra uma rota
     app.register_blueprint(user_blueprint)
+    app.register_blueprint(task_blueprint)
 
 
 def create_app(test_config: dict | None = None):
