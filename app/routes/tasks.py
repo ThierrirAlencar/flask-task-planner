@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, request, jsonify
 from sqlalchemy import select
 from app.models.task import Task
@@ -5,16 +6,26 @@ from app.core.database import db
 
 api = Blueprint("tasks",__name__,url_prefix="/tasks");
 
-@api.post("/")
-def create_task():
-    data = request.get_json();
-    task = Task(description=data["description"],date=data["date"],name=data["name"]);
+@api.post("/<int:id>")
+def create_task(id: int):
+    data = request.get_json()
+    date = datetime.strptime(data["date"], "%Y-%m-%d").date()
+    task = Task(
+        description=data["description"],
+        date=date,
+        name=data["name"],
+        user_id=id
+    )
 
     db.session.add(task)
     db.session.commit()
-    db.session.refresh(task);
 
-    return task;
+    return {
+        "title": task.name,
+        "description": task.description,
+        "date": task.date
+    }
+
 
 @api.get("/single/<int:id>")
 def get_one_task(id:int):
@@ -30,9 +41,15 @@ def get_one_task(id:int):
     };
 
 @api.get("/all/<int:user_id>")
-def get_many_by_user(user_id:int):
-    tasks =  db.session.scalars(select(Task).where(Task.user_id==user_id));
-    return jsonify(tasks)
+def get_many_by_user(user_id: int):
+    tasks = db.session.scalars(select(Task).where(Task.user_id == user_id)).all()
+    return jsonify([{
+        "id": task.id,
+        "title": task.name,
+        "description": task.description,
+        "date": task.date.isoformat() if task.date else None,
+        "user_id": task.user_id
+    } for task in tasks])
 
 @api.delete("/<int:id>")
 def delete(id: int):
