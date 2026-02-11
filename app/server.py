@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from app.core.database import db
 
 
@@ -26,7 +27,7 @@ def create_app(test_config: dict | None = None):
     Pass a `test_config` dict to override configuration (useful for tests).
     """
     app = Flask(__name__)
-
+    CORS(app)
     # valor padrão, pode ser sobrescrito por `test_config`
     app.config.setdefault("SQLALCHEMY_DATABASE_URI", "sqlite:///teste.db")
 
